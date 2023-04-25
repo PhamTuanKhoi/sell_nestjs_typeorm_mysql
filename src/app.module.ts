@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -14,7 +15,7 @@ import { UserModule } from './user/user.module';
       username: 'root',
       password: 'Mysql7!js',
       database: 'db_example',
-      entities: [],
+      entities: [User],
       synchronize: true,
     }),
     UserModule,
