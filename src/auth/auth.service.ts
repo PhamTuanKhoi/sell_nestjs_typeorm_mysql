@@ -49,7 +49,7 @@ export class AuthService {
   }
 
   async getUserFromJwtPayload({ id }: JwtPayload) {
-    const user = await this.userService.findOne(id);
+    const user = await this.userService.findById(id);
     if (!user) throw new HttpException(`user not found`, HttpStatus.NOT_FOUND);
     return user;
   }

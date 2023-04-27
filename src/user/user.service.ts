@@ -23,12 +23,10 @@ export class UserService {
   ) {}
 
   findAll(): Promise<User[]> {
-    console.log(1);
-
     return this.userRepository.find();
   }
 
-  findOne(id: number): Promise<User | null> {
+  findById(id: number): Promise<User | null> {
     return this.userRepository.findOneBy({ id });
   }
 
@@ -47,9 +45,9 @@ export class UserService {
   async register(registerUserDto: RegisterUserDto): Promise<User> {
     let { username, email, password } = registerUserDto;
     try {
+      // validate
       const username_exists = await this.findByUsername(username);
 
-      // validate
       if (username_exists)
         throw new HttpException(`username is exists!`, HttpStatus.BAD_GATEWAY);
 
@@ -80,16 +78,66 @@ export class UserService {
     return 'This action adds a new user';
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const { username, usernameOld, emailOld, email } = updateUserDto;
+
+    try {
+      // check data
+      await this.isModelExists(id);
+
+      if (username !== usernameOld) {
+        const username_exists = await this.findByUsername(
+          updateUserDto.username,
+        );
+
+        if (username_exists)
+          throw new HttpException(
+            `username is exists!`,
+            HttpStatus.BAD_GATEWAY,
+          );
+      }
+
+      if (email !== emailOld) {
+        const email_exists = await this.findByEmail(updateUserDto.email);
+
+        if (email_exists)
+          throw new HttpException(`email is exists!`, HttpStatus.BAD_GATEWAY);
+      }
+
+      // remove redundance schema
+      delete updateUserDto.usernameOld;
+      delete updateUserDto.emailOld;
+
+      // update
+      await this.userRepository
+        .createQueryBuilder()
+        .update('user')
+        .set(updateUserDto)
+        .where('id = :id', { id })
+        .execute();
+
+      this.logger.log(`update a user by id#${id}`);
+
+      return this.findById(id);
+    } catch (error) {
+      this.logger.error(error?.message, error?.stack);
+      throw new BadRequestException(error?.message);
+    }
   }
 
   async remove(id: number) {
-    //  return await this.userRepository
-    //     .createQueryBuilder()
-    //     .delete()
-    //     .from('user')
-    //     .execute();
-    return await this.userRepository.delete(id);
+    await this.isModelExists(id);
+
+    const removed = await this.userRepository.delete(id);
+
+    return removed;
+  }
+
+  async isModelExists(id: number, opition = false, mess = '') {
+    if (!id && opition) return;
+    const message = mess || `user not found by id#${id}`;
+    const user = await this.findById(id);
+    if (!user) throw new HttpException(message, HttpStatus.NOT_FOUND);
+    return user;
   }
 }
