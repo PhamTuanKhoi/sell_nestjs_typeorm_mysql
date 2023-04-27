@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   MinLength,
   Length,
+  IsEmail,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -31,7 +32,8 @@ export class CreateUserDto {
   avatar: string;
 
   @ApiProperty()
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
+  @IsEmail()
   email: string;
 }

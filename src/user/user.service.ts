@@ -19,23 +19,29 @@ export class UserService {
 
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private userRepository: Repository<User>,
   ) {}
 
   findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+    console.log(1);
+
+    return this.userRepository.find();
   }
 
   findOne(id: number): Promise<User | null> {
-    return this.usersRepository.findOneBy({ id });
+    return this.userRepository.findOneBy({ id });
   }
 
   findByUsername(username: string): Promise<User | null> {
-    return this.usersRepository.findOneBy({ username });
+    return this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.username = :username', { username })
+      .getOne();
   }
 
   findByEmail(email: string): Promise<User | null> {
-    return this.usersRepository.findOneBy({ email });
+    return this.userRepository.findOneBy({ email });
   }
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
@@ -56,7 +62,7 @@ export class UserService {
       password = await bcrypt.hash(password, 10);
 
       // create
-      const saved = await this.usersRepository.save({
+      const saved = await this.userRepository.save({
         ...registerUserDto,
         password,
       });
@@ -79,11 +85,11 @@ export class UserService {
   }
 
   async remove(id: number) {
-    //  return await this.usersRepository
+    //  return await this.userRepository
     //     .createQueryBuilder()
     //     .delete()
     //     .from('user')
     //     .execute();
-    return await this.usersRepository.delete(id);
+    return await this.userRepository.delete(id);
   }
 }
