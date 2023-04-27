@@ -7,12 +7,7 @@ import {
   Length,
 } from 'class-validator';
 
-export class CreateUserDto {
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  name: string;
-
+export class RegisterUserDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
@@ -24,11 +19,6 @@ export class CreateUserDto {
   @IsString()
   @MinLength(4)
   password: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  avatar: string;
 
   @ApiProperty()
   @IsOptional()
