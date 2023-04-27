@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDto } from 'src/user/dto/register-user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from 'src/user/dto/login-user.dto';
-import { JwtPayload } from './interface/jwtPayload';
+import { JwtPayload } from './interface/jwtPayload.interface';
 import { Http2ServerRequest } from 'http2';
 
 @Injectable()

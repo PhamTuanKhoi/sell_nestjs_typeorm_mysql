@@ -14,7 +14,7 @@ import { AuthService } from './auth.service';
 import { Auth } from './decorator/auth.decorator';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { LocalAuthGuard } from './guard/local-auth.guard';
-import { JwtPayload } from './interface/jwtPayload';
+import { JwtPayload } from './interface/jwtPayload.interface';
 
 @ApiTags('AUTH')
 @Controller('auth')
