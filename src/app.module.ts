@@ -17,7 +17,7 @@ import { CategoryModule } from './category/category.module';
       username: 'root',
       password: 'Mysql7!js',
       database: 'db_example',
-      entities: [User],
+      autoLoadEntities: true,
       synchronize: true,
     }),
     UserModule,
