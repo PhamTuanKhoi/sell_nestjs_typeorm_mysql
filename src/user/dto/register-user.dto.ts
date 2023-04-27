@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   MinLength,
   Length,
+  IsEmail,
 } from 'class-validator';
 
 export class RegisterUserDto {
@@ -21,7 +22,8 @@ export class RegisterUserDto {
   password: string;
 
   @ApiProperty()
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
+  @IsEmail()
   email: string;
 }

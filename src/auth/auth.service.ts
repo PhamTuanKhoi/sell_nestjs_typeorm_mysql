@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDto } from 'src/user/dto/register-user.dto';
 import * as bcrypt from 'bcrypt';
+import { LoginUserDto } from 'src/user/dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,14 @@ export class AuthService {
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.userService.findByUsername(username);
 
-    const match = await bcrypt.compare(pass, user.password);
+    if (!user)
+      throw new HttpException(`username incorrect!`, HttpStatus.BAD_GATEWAY);
+
+    const match = await bcrypt.compare(pass, user?.password);
+
+    if (!match)
+      throw new HttpException(`password incorrect!`, HttpStatus.BAD_GATEWAY);
+
     if (user && match) {
       const { ...result } = user;
       return result;
@@ -22,8 +30,11 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
-    console.log(user);
+  async login({ username }: LoginUserDto) {
+    const user = await this.userService.findByUsername(username);
+
+    if (!user)
+      throw new HttpException(`username incorrect!`, HttpStatus.BAD_GATEWAY);
 
     const payload = { username: user.username, id: user.id };
     return {
