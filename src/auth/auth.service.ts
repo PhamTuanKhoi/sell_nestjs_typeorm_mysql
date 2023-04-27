@@ -4,6 +4,8 @@ import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDto } from 'src/user/dto/register-user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from 'src/user/dto/login-user.dto';
+import { JwtPayload } from './interface/jwtPayload';
+import { Http2ServerRequest } from 'http2';
 
 @Injectable()
 export class AuthService {
@@ -44,5 +46,11 @@ export class AuthService {
 
   async register(registerUserDto: RegisterUserDto) {
     return this.userService.register(registerUserDto);
+  }
+
+  async getUserFromJwtPayload({ id }: JwtPayload) {
+    const user = await this.userService.findOne(id);
+    if (!user) throw new HttpException(`user not found`, HttpStatus.NOT_FOUND);
+    return user;
   }
 }
