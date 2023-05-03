@@ -18,7 +18,7 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @OneToMany(() => Category, (category) => category.user)

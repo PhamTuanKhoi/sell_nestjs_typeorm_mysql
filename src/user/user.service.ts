@@ -12,6 +12,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { QueryUserDto } from './dto/query-user.dto';
 
 @Injectable()
 export class UserService {
@@ -22,8 +23,33 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.userRepository.find({ relations: ['category'] });
+  async findAll(queryUserDto: QueryUserDto): Promise<User[]> {
+    const { sortBy, sortType, limit, page, ...query } = queryUserDto;
+    try {
+      let builder: any = this.userRepository
+        .createQueryBuilder()
+        .leftJoinAndSelect('User.category', 'category');
+
+      if (sortBy && sortType) builder = builder.orderBy('name', sortType);
+
+      if (page && limit)
+        builder = builder.offset((+page - 1) * +limit).limit(+limit);
+
+      if (query.name)
+        builder = builder.andWhere('user.name LIKE :name', {
+          name: `%${query.name}%`,
+        });
+
+      if (query.userId)
+        builder = builder.andWhere('user.id = :userId', {
+          userId: query.userId,
+        });
+
+      return builder.getMany();
+    } catch (error) {
+      this.logger.error(error?.message, error?.stack);
+      throw new BadRequestException(error?.message);
+    }
   }
 
   findById(id: number): Promise<User | null> {
