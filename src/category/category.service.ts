@@ -1,5 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -7,20 +14,34 @@ import { Category } from './entities/category.entity';
 
 @Injectable()
 export class CategoryService {
+  private readonly logger = new Logger(CategoryService.name);
+
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
+    private userService: UserService,
   ) {}
 
-  create(createCategoryDto: CreateCategoryDto) {
+  async create(
+    createCategoryDto: CreateCategoryDto,
+  ): Promise<Object | undefined> {
     try {
-      return this.categoryRepository
-        .createQueryBuilder()
-        .insert()
-        .into('category')
-        .values(createCategoryDto)
-        .execute();
-    } catch (error) {}
+      const user = await this.userService.isModelExists(
+        +createCategoryDto.user,
+      );
+
+      const created = await this.categoryRepository.save({
+        ...createCategoryDto,
+        user,
+      });
+
+      this.logger.log(`created a new category by id#${created?.id}`);
+
+      return created;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw new BadRequestException(error);
+    }
   }
 
   findAll() {

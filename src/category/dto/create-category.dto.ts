@@ -14,5 +14,5 @@ export class CreateCategoryDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  user: string;
+  user: number;
 }
