@@ -46,13 +46,38 @@ export class CategoryService {
   }
 
   async findAll(queryCategoryDto: QueryCategoryDto): Promise<Category[] | []> {
-    let builder: any = this.categoryRepository
-      .createQueryBuilder()
-      .orderBy('id', 'DESC');
+    const { page, limit, sortBy, sortType, ...query } = queryCategoryDto;
 
-    builder = builder.limit(2).skip(1).getMany();
+    try {
+      let builder: any = this.categoryRepository
+        .createQueryBuilder()
+        .innerJoinAndSelect('Category.user', 'user');
 
-    return builder;
+      if (sortBy && sortType) builder = builder.orderBy(sortBy, sortType);
+
+      if (page && limit)
+        builder = builder.offset((page - 1) * limit).limit(limit);
+
+      if (query.name)
+        builder = builder.andWhere('category.name LIKE :name', {
+          name: `%${query.name}%`,
+        });
+
+      if (query.categoryId)
+        builder = builder.andWhere('category.id = :id', {
+          id: query.categoryId,
+        });
+
+      if (query.userId)
+        builder = builder.andWhere('user.id = :userid', {
+          userid: query.userId,
+        });
+
+      return builder.getMany();
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw new BadRequestException(error);
+    }
   }
 
   findById(id: number) {
