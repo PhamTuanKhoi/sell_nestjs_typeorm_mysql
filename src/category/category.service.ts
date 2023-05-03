@@ -45,10 +45,11 @@ export class CategoryService {
   }
 
   findAll() {
-    return this.categoryRepository.find({
-      where: { user: { id: 4 } },
-      relations: ['user'],
-    });
+    let builder: any = this.categoryRepository.createQueryBuilder();
+
+    builder = builder.limit(2).skip(1).getMany();
+
+    return builder;
   }
 
   findById(id: number) {
