@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { QueryCategoryDto } from './dto/query-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
 
@@ -44,8 +45,10 @@ export class CategoryService {
     }
   }
 
-  findAll() {
-    let builder: any = this.categoryRepository.createQueryBuilder();
+  async findAll(queryCategoryDto: QueryCategoryDto): Promise<Category[] | []> {
+    let builder: any = this.categoryRepository
+      .createQueryBuilder()
+      .orderBy('id', 'DESC');
 
     builder = builder.limit(2).skip(1).getMany();
 

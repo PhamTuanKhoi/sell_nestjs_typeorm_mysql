@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   name: string;
@@ -26,7 +26,7 @@ export class CreateUserDto {
   @MinLength(4)
   password: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   avatar: string;
