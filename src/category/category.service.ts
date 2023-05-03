@@ -81,19 +81,48 @@ export class CategoryService {
   }
 
   findById(id: number) {
-    return `This action returns a #${id} category`;
+    return this.categoryRepository.findOneBy({ id });
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(
+    id: number,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<Category | undefined> {
+    try {
+      await Promise.all([
+        this.isModelExists(id),
+        this.userService.isModelExists(updateCategoryDto.user),
+      ]);
+
+      await this.categoryRepository
+        .createQueryBuilder()
+        .update('category')
+        .set(updateCategoryDto)
+        .where('id = :id', { id })
+        .execute();
+
+      this.logger.log(`update a category by id#${id}`);
+
+      return this.findById(id);
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw new BadRequestException(error);
+    }
   }
 
   async remove(id: number) {
-    // await this.isModelExists(id);
+    try {
+      await this.isModelExists(id);
 
-    const removed = await this.categoryRepository.delete(id);
+      const removed = await this.categoryRepository.delete(id);
 
-    return removed;
+      this.logger.log(`removed a caterory by id#${id}`);
+
+      return removed;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw new BadRequestException(error);
+    }
   }
 
   async isModelExists(id: number, opition = false, mess = '') {
