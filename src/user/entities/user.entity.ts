@@ -21,6 +21,6 @@ export class User {
   @Column()
   email: string;
 
-  // @OneToMany(() => Category, (category) => category.user)
-  // category: Category[];
+  @OneToMany(() => Category, (category) => category.user)
+  category: Category[];
 }

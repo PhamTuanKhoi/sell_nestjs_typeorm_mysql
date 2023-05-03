@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsString, Length } from 'class-validator';
+import { IsNull } from 'typeorm';
 
 export class CreateCategoryDto {
   @ApiProperty()
@@ -10,6 +12,7 @@ export class CreateCategoryDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
+  @Type(() => Number)
+  @IsNumber()
   user: string;
 }

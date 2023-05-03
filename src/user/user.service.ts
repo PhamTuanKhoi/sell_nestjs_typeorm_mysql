@@ -23,7 +23,7 @@ export class UserService {
   ) {}
 
   findAll(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userRepository.find({ relations: ['category'] });
   }
 
   findById(id: number): Promise<User | null> {

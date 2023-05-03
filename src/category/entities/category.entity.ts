@@ -9,6 +9,6 @@ export class Category {
   @Column({ nullable: true })
   name: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (user) => user.category)
   user: User;
 }

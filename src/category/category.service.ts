@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -13,14 +13,24 @@ export class CategoryService {
   ) {}
 
   create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+    try {
+      return this.categoryRepository
+        .createQueryBuilder()
+        .insert()
+        .into('category')
+        .values(createCategoryDto)
+        .execute();
+    } catch (error) {}
   }
 
   findAll() {
-    return `This action returns all category`;
+    return this.categoryRepository.find({
+      where: { user: { id: 4 } },
+      relations: ['user'],
+    });
   }
 
-  findOne(id: number) {
+  findById(id: number) {
     return `This action returns a #${id} category`;
   }
 
@@ -28,7 +38,19 @@ export class CategoryService {
     return `This action updates a #${id} category`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number) {
+    // await this.isModelExists(id);
+
+    const removed = await this.categoryRepository.delete(id);
+
+    return removed;
+  }
+
+  async isModelExists(id: number, opition = false, mess = '') {
+    if (!id && opition) return;
+    const message = mess || `user not found by id#${id}`;
+    const user = await this.findById(id);
+    if (!user) throw new HttpException(message, HttpStatus.NOT_FOUND);
+    return user;
   }
 }
